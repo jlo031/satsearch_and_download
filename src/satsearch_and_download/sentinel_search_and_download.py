@@ -369,9 +369,9 @@ def download_products_from_list(
             # add uid-identifier as key-value pair to dictionary
             S_dict[uid] = ID
 
-        if S_dict:
-            paths = ssdh.download_list(S_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
-            logger.info('Batch download finished! See you next time:)')
+    if S_dict:
+        paths = ssdh.download_list(S_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
+        logger.info('Batch download finished! See you next time:)')
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
