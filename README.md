@@ -1,12 +1,12 @@
 # Satellite Products Search & Download
 
-This library provides python code for standard search and batch download of various satellite products. It currenlty supports Sentinel-1 (EW GRD), Sentinel-2 (L1C), and Sentinel-3 (OLCI). The search is done via `SentinelAPI` on Copernicus SciHub. Download is done through Creodias, to avoid issues with archived products.
+This library provides python code for search and batch download of various satellite products. It currenlty supports Sentinel-1 (EW GRD), Sentinel-2 (L1C), and Sentinel-3 (OLCI). The search is done via `SentinelAPI` on Copernicus SciHub. Download is done through Creodias, to avoid issues with archived products.
 
 
 ### Requirements
 
-- [Copernicus SciHub] account user account on Copernicus Open Access Hub: https://scihub.copernicus.eu/dhus/#/home
-- [Creodias] account user account on Creodias: https://creodias.eu/
+- [Copernicus SciHub] account user account on Copernicus Open Access Hub
+- [Creodias] account user account on Creodias
 
 
 ### Conda environment
@@ -42,9 +42,9 @@ Now, change into the main directory of the cloned repository (it should contain 
 
 The library requires access to your user accounts on copernicus scihub and on creodias. You must provide your login details to be stored in a local _.env. file. In your working directory, create a file called `.env` that contains the following lines:
     
->DHUS_USER=<your-scihub-username>
->DHUS_PASSWORD=<your-scihub-password>
->CREO_USER=<your-creodias-username>
+>DHUS_USER=<your-scihub-username>  
+>DHUS_PASSWORD=<your-scihub-password>  
+>CREO_USER=<your-creodias-username>  
 >CREO_PASSWORD=<your-creodias-password>
 
 
