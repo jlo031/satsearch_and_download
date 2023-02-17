@@ -42,10 +42,10 @@ Now, change into the main directory of the cloned repository (it should contain 
 
 The library requires access to your user accounts on copernicus scihub and on creodias. You must provide your login details to be stored in a local _.env. file. In your working directory, create a file called `.env` that contains the following lines:
     
->DHUS_USER=<your-scihub-username>  
->DHUS_PASSWORD=<your-scihub-password>  
->CREO_USER=<your-creodias-username>  
->CREO_PASSWORD=<your-creodias-password>
+>DHUS_USER='your-scihub-username'  
+>DHUS_PASSWORD='your-scihub-password'  
+>CREO_USER='your-creodias-username'  
+>CREO_PASSWORD='your-creodias-password'
 
 
 
