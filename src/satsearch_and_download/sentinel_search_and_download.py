@@ -87,11 +87,6 @@ def sentinel_search(
     # create search_result_dir if needed
     search_result_dir.mkdir(parents=True, exist_ok=True)
 
-    # build path to search result txt file
-    search_result_path = search_result_dir / f'search_result_{json_path.stem}_{starttime.isoformat()}_{endtime.isoformat()}.txt'
-
-    logger.debug(f'search_result_path: {search_result_path}')
-
 # -------------------------------------------------------------------------- #
 
     # get scihub user and passwd
@@ -120,6 +115,10 @@ def sentinel_search(
 
 # -------------------------------------------------------------------------- #
 
+    # PERFORM API QUERY
+
+# --------------- #
+
     # Sentinel-1
     if 'S1' in sensors:
         logger.info("Searching for Sentinel-1 GRD products")
@@ -143,7 +142,7 @@ def sentinel_search(
         logger.info(f'Found {n_products} S1 products')
         logger.info(f'Found {str(len(S1products))} S1 products')      
 
-# -------------------------------------------------------------------------- #
+# --------------- #
 
     # Sentinel-2
     if "S2" in sensors:
@@ -170,7 +169,7 @@ def sentinel_search(
         logger.info(f'Found {n_products} S2 products')
         logger.info(f'Found {str(len(S2products))} S2 products')      
 
-# -------------------------------------------------------------------------- #
+# --------------- #
 
     # Sentinel-3
     if "S3" in sensors:
@@ -216,8 +215,81 @@ def sentinel_search(
 
 # -------------------------------------------------------------------------- #
 
+    # WRITE SEARCH RESULTS TO GEOJSON AND TXT FILES
+
+    result_file_basename = f'search_result_{json_path.stem}_{starttime.isoformat()}_{endtime.isoformat()}'
+
+# --------------- #
+
+    if 'S1' in sensors:
+        if S1products:
+
+            # define file names
+            search_result_json_path = search_result_dir / f'S1_{result_file_basename}.geojson'
+            search_result_txt_path  = search_result_dir / f'S1_{result_file_basename}.txt'
+
+            # list product identifiers of search results
+            s1_id_list = [ S1products[uuid]['identifier'] for uuid in S1products ]
+                
+            with open(search_result_json_path, "w") as f:
+                S1products_gjson = s_api.to_geojson(S1products)
+                f.write(json.dumps(S1products_gjson, indent=4, sort_keys=True))
+
+            with open(search_result_txt_path, "w") as f:
+                for product_id in s1_id_list:
+                    f.write(f"{product_id}\n")
+
+            logger.info(f'S1 search results saved to {search_result_json_path} and {search_result_txt_path}')
+
+# --------------- #
+
+    if 'S2' in sensors:       
+        if S2products:
+
+            # define file names
+            search_result_json_path = search_result_dir / f'S2_{result_file_basename}.geojson'
+            search_result_txt_path  = search_result_dir / f'S2_{result_file_basename}.txt'
+ 
+
+            # list product identifiers of search results
+            s2_id_list = [S2products[uuid]['identifier'] for uuid in S2products]
+
+            with open(search_result_json_path, "w") as f:
+                S2products_gjson = s_api.to_geojson(S2products)
+                f.write(json.dumps(S2products_gjson, indent=4, sort_keys=True))
+
+            with open(search_result_txt_path, "w") as f:
+                for product_id in s2_id_list:
+                    f.write(f"{product_id}\n")
+
+            logger.info(f'S2 search results saved to {search_result_json_path} and {search_result_txt_path}')
+
+# --------------- #
+
+    if 'S3' in sensors:       
+        if S3products:
+            
+            # define file names
+            search_result_json_path = search_result_dir / f'S3_{result_file_basename}.geojson'
+            search_result_txt_path  = search_result_dir / f'S3_{result_file_basename}.txt'
 
 
+            # list product identifiers of search results
+            s3_id_list = [S3products[uuid]['identifier'] for uuid in S3products]
+
+            with open(search_result_json_path, "w") as f:
+                S3products_gjson = s_api.to_geojson(S3products)
+                f.write(json.dumps(S3products_gjson, indent=4, sort_keys=True))
+
+            with open(search_result_txt_path, "w") as f:
+                for product_id in s3_id_list:
+                    f.write(f"{product_id}\n")
+
+            logger.info(f'S3 search results saved to {search_result_json_path} and {search_result_txt_path}')
+
+# --------------- #
+
+    logger.info('Finished search')
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
@@ -301,6 +373,31 @@ def download_products_from_list(
             paths = ssdh.download_list(S_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
             logger.info('Batch download finished! See you next time:)')
 
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+
+def read_txt_file_to_list(txt_path):
+    """Read product IDs from txt file into list
+
+    Parameters
+    ----------
+    txt_path : path to txt file with product IDs
+
+    Returns
+    -------
+    product_list :  list with product name strings
+    """
+
+    # open file in read mode
+    with open(txt_path,'r') as f:
+        product_list = f.read().split("\n")
+
+    # remove potential empties
+    while("" in product_list):
+        product_list.remove("")
+
+
+    return product_list
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
