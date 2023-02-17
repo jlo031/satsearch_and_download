@@ -16,7 +16,6 @@ setup(
     install_requires = [
         'sentinelsat',
         'dateparser',
-        'numpy',
         'ipython',
         'loguru',
         'python-dotenv',
