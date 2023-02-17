@@ -19,7 +19,7 @@ It is recommended to setup a virtual conda environment to install this library. 
     conda activate satsearch
     
     # install required packages
-    pip install sentinelsat geojson shapely
+    pip install sentinelsat geojson shapely chardet
     conda install -c anaconda requests
     conda install -c conda-forge python-keycloak
 
