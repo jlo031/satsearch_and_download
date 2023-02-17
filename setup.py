@@ -8,10 +8,10 @@ def read(fname):
 setup(
     name = "satsearch_and_download",
     version = "0.0.1",
-    author = "Johannes Lohse",
+    author = "Catherine Taelman, Johannes Lohse",
     author_email = "johannes.lohse@uit.no",
     description = ("Search and download Copernices Sentinel data."),
-    license = "The Ask Johannes Before You Do Anything License",
+    license = "The Ask Catherine or Johannes Before You Do Anything License",
     long_description=read('README.md'),
     install_requires = [
         'sentinelsat',
