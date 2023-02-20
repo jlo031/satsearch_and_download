@@ -9,7 +9,7 @@ setup(
     name = "satsearch_and_download",
     version = "0.0.1",
     author = "Catherine Taelman, Johannes Lohse",
-    author_email = "johannes.lohse@uit.no",
+    author_email = "cta014@uit.no,jlo031@uit.no",
     description = ("Search and download Copernices Sentinel data."),
     license = "The Ask Catherine or Johannes Before You Do Anything License",
     long_description=read('README.md'),
@@ -23,7 +23,7 @@ setup(
     ],
     packages = find_packages(where='src'),
     package_dir = {'': 'src'},
-    package_data = {'': ['.env']},
+    package_data = {'':},
     entry_points = {
         'console_scripts': [
         ]
