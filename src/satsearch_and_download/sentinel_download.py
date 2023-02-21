@@ -98,12 +98,17 @@ def download_products_from_list(
 
 
 
-    # initialize dictionary for download urls
-    S_dict = {}
+    # initialize dictionaries for download urls
+    S1_dict = {}
+    S2_dict = {}
+    S3_dict = {}
 
 # -------------------------------------------------------------------------- #
 
     # loop over all IDs in product list
+
+    logger.info('Looping through product list. Checking previous downloads and searching on creodias...')
+
     for ID in product_list:
 
         # check if product was already downloaded
@@ -114,18 +119,56 @@ def download_products_from_list(
             else:
                 logger.info(f'Product {ID}.zip already exists. Overwriting existing file.')
 
-        # search Creodias to find Sentinel products from list
+        # search Creodias to find Sentinel-1 products from list
         if ID.startswith('S1'):
             creo_search_url = f'https://finder.creodias.eu/resto/api/collections/Sentinel1/search.json?maxRecords=10&productIdentifier=%25{ID}.SAFE%25&sortParam=startDate&sortOrder=descending&status=all&dataset=ESA-DATASET'
             creo_search_results = ssdh.find_products(creo_search_url)
             # extract corresponding creodias uid
             uid = creo_search_results.json()['features'][0]['id']
             # add uid-identifier as key-value pair to dictionary
-            S_dict[uid] = ID
+            S1_dict[uid] = ID
 
-    if S_dict:
-        paths = ssdh.download_list(S_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
-        logger.info('Batch download finished! See you next time:)')
+        # search Creodias to find Sentinel-2 products from list
+        if ID.startswith('S2'):
+            creo_search_url = f"https://finder.creodias.eu/resto/api/collections/Sentinel2/search.json?maxRecords=10&productIdentifier=%25{ID}%25&sortParam=startDate&sortOrder=descending&status=all&dataset=ESA-DATASET"
+            creo_search_results = ssdh.find_products(creo_search_url)
+            # extract corresponding creodias uid
+            uid = creo_search_results.json()['features'][0]['id']
+            # add uid-identifier as key-value pair to dictionary
+            S2_dict[uid] = ID
+                
+        # search Creodias to find Sentinel-3 products from list
+        if ID.startswith('S3'):
+            creo_search_url = f"https://finder.creodias.eu/resto/api/collections/Sentinel3/search.json?maxRecords=10&productIdentifier=%25{ID}%25&sortParam=startDate&sortOrder=descending&status=all&dataset=ESA-DATASET"
+            creo_search_results = ssdh.find_products(creo_search_url)
+            # extract corresponding creodias uid
+            uid = creo_search_results.json()['features'][0]['id']
+            # add uid-identifier as key-value pair to dictionary
+            S3_dict[uid] = ID
+
+
+
+    # Download
+    if S1_dict:
+        logger.info('Starting S1 batch download)')
+        paths = ssdh.download_list(S1_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
+        logger.info('S1 batch download finished! See you next time:)')
+    else:
+        logger.info('No S1 products in download list')
+
+    if S2_dict:
+        logger.info('Starting S2 batch download)')
+        paths = ssdh.download_list(S2_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
+        logger.info('S2 batch download finished! See you next time:)')
+    else:
+        logger.info('No S2 products in download list')
+
+    if S3_dict:
+        logger.info('Starting S3 batch download)')
+        paths = ssdh.download_list(S3_dict, os.environ["CREO_USER"], os.environ["CREO_PASSWORD"], download_dir)
+        logger.info('S3 batch download finished! See you next time:)')
+    else:
+        logger.info('No S3 products in download list')
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
