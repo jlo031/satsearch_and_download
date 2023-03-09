@@ -29,9 +29,9 @@ It is recommended to setup a virtual conda environment to install this library. 
 Start by cloning the repository:
 
     # clone the repository
-    git clone https://github.com/jlo031/satsearch_and_download.git
-
-Now, change into the main directory of the cloned repository (it should contain the 'setup.py' file) and install the library by running:
+    git clone git@github.com:jlo031/satsearch_and_download.git
+    
+    Now, change into the main directory of the cloned repository (it should contain the 'setup.py' file) and install the library by running:
 
     # installation
     pip install .
