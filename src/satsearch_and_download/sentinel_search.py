@@ -31,6 +31,7 @@ def find_sentinel_products(
     cloudcover='0,30',
     search_dir=pathlib.Path.cwd() / 'search_results',
     overwrite=False,
+    return_OrderedDict = False,
     loglevel = 'INFO'
 ):
     
@@ -54,6 +55,8 @@ def find_sentinel_products(
         path to directory where search results are saved in .geojson and .txt files. By default, folder 'search_results' will be created in the current work directory.
     overwrite:
         overwrite existing search results (default=False)
+    return_OrderedDict:
+        return dict with search results, needed for download through scihub (default=False)
     loglevel:
         set logger level (default=INFO)
     """
@@ -239,7 +242,7 @@ def find_sentinel_products(
                 for product_id in s1_id_list:
                     f.write(f"{product_id}\n")
 
-            logger.info(f'S1 search results saved to {search_result_json_path} and {search_result_txt_path}')
+            logger.info(f'S1 search results saved to: {search_result_json_path} and {search_result_txt_path}')
 
 # --------------- #
 
@@ -262,7 +265,7 @@ def find_sentinel_products(
                 for product_id in s2_id_list:
                     f.write(f"{product_id}\n")
 
-            logger.info(f'S2 search results saved to {search_result_json_path} and {search_result_txt_path}')
+            logger.info(f'S2 search results saved to: {search_result_json_path} and {search_result_txt_path}')
 
 # --------------- #
 
@@ -285,11 +288,15 @@ def find_sentinel_products(
                 for product_id in s3_id_list:
                     f.write(f"{product_id}\n")
 
-            logger.info(f'S3 search results saved to {search_result_json_path} and {search_result_txt_path}')
+            logger.info(f'S3 search results saved to: {search_result_json_path} and {search_result_txt_path}')
 
 # --------------- #
 
     logger.info('Finished search')
+
+# --------------- #
+    if return_OrderedDict and 'S1' in sensors:
+        return S1products
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #

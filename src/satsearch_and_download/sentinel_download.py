@@ -18,6 +18,7 @@ from sentinelsat import SentinelAPI, read_geojson, geojson_to_wkt
 from dateparser import parse
 
 import satsearch_and_download.ssd_helpers as ssdh
+import satsearch_and_download.sentinel_search as ss
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
@@ -169,6 +170,158 @@ def download_products_from_list(
         logger.info('S3 batch download finished! See you next time:)')
     else:
         logger.info('No S3 products in download list')
+
+# -------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------- #
+
+def search_and_download_products_from_scihub(
+    sensors, 
+    area, 
+    starttime, 
+    endtime,
+    download_dir,
+    area_relation='Intersects',
+    cloudcover='0,30',
+    search_dir=pathlib.Path.cwd() / 'search_results',
+    overwrite=False,
+    loglevel = 'INFO'
+):
+    """Find Sentinel products from copernicus.scihub and try to download them
+
+    Parameters
+    ----------
+    sensors:
+        list of Sentinel sensors to be included in the search (choices = ['S1', 'S2', 'S3'])
+    area:
+        path to geojson file defining the area of interest
+    starttime:
+        sensing start time 'YYYY-MM-DD HH:MM'
+    endtime:
+        sensing end time 'YYYY-MM-DD HH:MM'
+    download_dir :
+        target directory for product download
+    area_relation:
+        area relation of polygon and products (choices = ['Contains', 'Intersects']
+    cloudcover:
+        cloud cover percentage 'min,max' (default = '0,30')
+    search_dir:
+        path to directory where search results are saved in .geojson and .txt files. By default, folder 'search_results' will be created in the current work directory.
+    overwrite:
+        overwrite existing search results (default=False)
+    loglevel:
+        set logger level (default=INFO)
+    """
+    
+    # remove default logger handler and add personal one
+    logger.remove()
+    logger.add(sys.stderr, level=loglevel)
+
+    # convert download folder string to path
+    download_dir = pathlib.Path(download_dir).expanduser().absolute()
+
+    logger.debug(f'download_dir: {download_dir}')
+
+# -------------------------------------------------------------------------- #
+
+    # get scihub user and passwd
+    logger.debug('Loading environment variables from .env file')
+    load_dotenv()
+
+    try:
+        os.environ["DHUS_USER"]
+    except:
+        logger.error("The environment variable 'DHUS_USER' is not set.")
+        raise KeyError("The environment variable 'DHUS_USER' is not set.")
+    
+    try:
+        os.environ["DHUS_PASSWORD"]
+    except:
+        logger.error("The environment variable 'DHUS_PASSWORD' is not set.")
+        raise KeyError("The environment variable 'DHUS_PASSWORD' is not set")
+
+
+    # create sentinelAPI
+    try:
+        s_api = SentinelAPI(os.environ["DHUS_USER"], os.environ["DHUS_PASSWORD"])
+    except KeyError:
+        logger
+        raise KeyError("Cannot login to Copernicus SciHub, check if username (DHUS_USER) and password (DHUS_PASSWORD) are set correctly in .env file")
+
+# -------------------------------------------------------------------------- #
+
+    # find products with satsearch_and_download.sentinel_search
+    # all input parameters that are used for the search will be checked in here
+
+    S1products = ss.find_sentinel_products(
+        sensors, 
+        area, 
+        starttime, 
+        endtime,
+        area_relation = area_relation,
+        cloudcover = cloudcover,
+        overwrite = overwrite,
+        return_OrderedDict = True,
+        loglevel = loglevel
+    )
+
+# --------------- #
+
+    # get number of hits
+    n_products = len(S1products)
+    logger.info(f'Found {n_products} Sentinel-1 products')
+
+    # initialize counters
+    exsiting_products   = 0
+    downloaded_products = 0
+    offline_products    = 0
+
+# --------------- #
+
+    # loop over found products and download if they do not exist yet
+
+    for i,key in enumerate(S1products.keys()):
+        logger.info(f'Downloading product {i+1} of {n_products}')
+
+        f_base = S1products[key]['identifier']
+
+        logger.info(f'Current product identifier: {f_base}')
+
+        # build download safe and zip path
+        zip_path  = download_dir / f'{f_base}.zip'
+        safe_path = download_dir / f'{f_base}.SAFE'
+
+        logger.debug(f'zip_path: {zip_path}')
+        logger.debug(f'safe_path: {safe_path}')
+
+
+        if zip_path.is_file() or safe_path.is_dir():
+            if not overwrite:
+                logger.info('Already downloaded current product')
+                exsiting_products = exsiting_products + 1
+            if overwrite:
+                logger.info('Overwriting already downloaded current product')
+                zip_path.unlink(missing_ok=True)
+
+                try:
+                    s_api.download(key, directory_path=download_dir)
+                    downloaded_products = downloaded_products + 1
+                except:
+                    logger.warning('Current product is offline on copernicus scihub')
+                    offline_products = offline_products + 1
+
+        else:
+            logger.info('Downloading current product')
+            try:
+                s_api.download(key, directory_path=download_dir)
+                downloaded_products = downloaded_products + 1
+            except:
+                logger.warning('Current product is offline on copernicus scihub')
+                offline_products = offline_products + 1
+
+
+    logger.info(f'Number of downloaded products: {downloaded_products}')
+    logger.info(f'Number of existing products:   {exsiting_products}')
+    logger.info(f'Number of offline products:    {offline_products}')
 
 # -------------------------------------------------------------------------- #
 # -------------------------------------------------------------------------- #
