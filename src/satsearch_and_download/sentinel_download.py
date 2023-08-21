@@ -183,6 +183,8 @@ def search_and_download_products_from_scihub(
     area_relation='Intersects',
     cloudcover='0,30',
     search_dir=pathlib.Path.cwd() / 'search_results',
+    scihub_username='None',
+    scihub_password='None',
     overwrite=False,
     loglevel = 'INFO'
 ):
@@ -206,6 +208,10 @@ def search_and_download_products_from_scihub(
         cloud cover percentage 'min,max' (default = '0,30')
     search_dir:
         path to directory where search results are saved in .geojson and .txt files. By default, folder 'search_results' will be created in the current work directory.
+    scihub_username:
+        manual input of scihub username (default='None' means .env file will be used)
+    scihub_passeord:
+        manual input of scihub password (default='None' means .env file will be used)
     overwrite:
         overwrite existing search results (default=False)
     loglevel:
@@ -223,26 +229,32 @@ def search_and_download_products_from_scihub(
 
 # -------------------------------------------------------------------------- #
 
-    # get scihub user and passwd
-    logger.debug('Loading environment variables from .env file')
-    load_dotenv()
+    if scihub_username=='None' and scihub_password=='None':
 
-    try:
-        os.environ["DHUS_USER"]
-    except:
-        logger.error("The environment variable 'DHUS_USER' is not set.")
-        raise KeyError("The environment variable 'DHUS_USER' is not set.")
+        # get scihub user and passwd
+        logger.debug('Loading environment variables from .env file')
+        load_dotenv()
+
+        try:
+            scihub_username = os.environ["DHUS_USER"]
+        except:
+            logger.error("The environment variable 'DHUS_USER' is not set.")
+            raise KeyError("The environment variable 'DHUS_USER' is not set.")
     
-    try:
-        os.environ["DHUS_PASSWORD"]
-    except:
-        logger.error("The environment variable 'DHUS_PASSWORD' is not set.")
-        raise KeyError("The environment variable 'DHUS_PASSWORD' is not set")
+        try:
+            scihub_password = os.environ["DHUS_PASSWORD"]
+        except:
+            logger.error("The environment variable 'DHUS_PASSWORD' is not set.")
+            raise KeyError("The environment variable 'DHUS_PASSWORD' is not set")
+
+    else:
+        logger.info('Using manual scihub access credentials')
+
 
 
     # create sentinelAPI
     try:
-        s_api = SentinelAPI(os.environ["DHUS_USER"], os.environ["DHUS_PASSWORD"])
+        s_api = SentinelAPI(scihub_username, scihub_password)
     except KeyError:
         logger
         raise KeyError("Cannot login to Copernicus SciHub, check if username (DHUS_USER) and password (DHUS_PASSWORD) are set correctly in .env file")
@@ -259,6 +271,8 @@ def search_and_download_products_from_scihub(
         endtime,
         area_relation = area_relation,
         cloudcover = cloudcover,
+        scihub_username = scihub_username,
+        scihub_password = scihub_password,
         overwrite = overwrite,
         return_OrderedDict = True,
         loglevel = loglevel
