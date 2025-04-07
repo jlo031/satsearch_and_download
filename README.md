@@ -1,3 +1,7 @@
+**NB: This library is outdated. For API satellite data access, use the [CDSE](https://github.com/jlo031/CDSE) library.**
+
+
+
 # Satellite Products Search & Download
 
 This library provides python code for search and batch download of various satellite products. It currenlty supports Sentinel-1 (EW GRD), Sentinel-2 (L1C), and Sentinel-3 (OLCI). The search is done via `SentinelAPI` on Copernicus SciHub. Download is done through Creodias, to avoid issues with archived products.
